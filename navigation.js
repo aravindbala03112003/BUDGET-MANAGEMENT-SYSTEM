@@ -4,9 +4,40 @@ document.addEventListener('DOMContentLoaded', function() {
     const navMenu = document.querySelector('.nav-menu');
 
     if (navToggle && navMenu) {
-        navToggle.addEventListener('click', () => {
-            navMenu.classList.toggle('active');
-            console.log('Nav menu toggled:', navMenu.classList.contains('active'));
+        navToggle.setAttribute('role', 'button');
+        navToggle.setAttribute('aria-label', 'Toggle navigation menu');
+        navToggle.setAttribute('aria-expanded', 'false');
+        navToggle.setAttribute('tabindex', '0');
+
+        const toggleMenu = () => {
+            const isActive = navMenu.classList.toggle('active');
+            navToggle.setAttribute('aria-expanded', isActive ? 'true' : 'false');
+            console.log('Nav menu toggled:', isActive);
+        };
+
+        navToggle.addEventListener('click', toggleMenu);
+        navToggle.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                toggleMenu();
+            }
+        });
+
+        // Close when clicking outside
+        document.addEventListener('click', (e) => {
+            if (navMenu.classList.contains('active') && !navMenu.contains(e.target) && !navToggle.contains(e.target)) {
+                navMenu.classList.remove('active');
+                navToggle.setAttribute('aria-expanded', 'false');
+            }
+        });
+
+        // Close on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && navMenu.classList.contains('active')) {
+                navMenu.classList.remove('active');
+                navToggle.setAttribute('aria-expanded', 'false');
+                navToggle.focus();
+            }
         });
     }
 
@@ -15,8 +46,8 @@ document.addEventListener('DOMContentLoaded', function() {
         link.addEventListener('click', (e) => {
             e.preventDefault(); // Prevent default link behavior
             const href = link.getAttribute('href');
-            console.log('Nav link clicked:', href);
-            navMenu.classList.remove('active'); // Close mobile menu
+            if (navMenu) navMenu.classList.remove('active'); // Close mobile menu
+            if (navToggle) navToggle.setAttribute('aria-expanded', 'false');
 
             // Map links to slide IDs
             const slideMap = {
