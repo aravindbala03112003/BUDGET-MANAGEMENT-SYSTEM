@@ -22,6 +22,14 @@ if (!is_numeric($amount) || (float)$amount <= 0) {
     exit;
 }
 
+if (strcasecmp($type, 'consumable') === 0) {
+    $type = 'Consumable';
+} elseif (strcasecmp($type, 'non-consumable') === 0 || strcasecmp($type, 'non consumable') === 0) {
+    $type = 'Non-Consumable';
+} else {
+    $type = 'Consumable';
+}
+
 try {
     $pdo->beginTransaction();
 

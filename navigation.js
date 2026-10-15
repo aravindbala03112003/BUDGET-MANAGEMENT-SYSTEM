@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Map links to slide IDs
             const slideMap = {
                 'index.html': 'welcome-slide',
+                'newallocation.html': 'create-goal-slide',
                 'allocation.html': 'goal-selection-slide',
                 'expenditure.html': 'expenditure-slide',
                 'reports.html': 'reports-slide',
@@ -45,16 +46,21 @@ document.addEventListener('DOMContentLoaded', function() {
     // Slide transition handling
     window.showSlide = function(slideId) {
         console.log('Showing slide:', slideId);
-        document.querySelectorAll('.slide').forEach(slide => {
-            slide.style.display = 'none';
-            slide.classList.remove('slide-active');
-        });
         const targetSlide = document.getElementById(slideId);
         if (targetSlide) {
+            document.querySelectorAll('.slide').forEach(slide => {
+                slide.style.display = 'none';
+                slide.classList.remove('slide-active');
+            });
             targetSlide.style.display = 'block';
             targetSlide.classList.add('slide-active');
         } else {
-            console.error('Slide not found:', slideId);
+            console.warn('Slide not found:', slideId);
+            const firstSlide = document.querySelector('.slide');
+            if (firstSlide) {
+                firstSlide.style.display = 'block';
+                firstSlide.classList.add('slide-active');
+            }
         }
     };
 
@@ -69,7 +75,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const pathname = window.location.pathname.toLowerCase();
     console.log('Current pathname:', pathname);
 
-    if (pathname.includes('allocation.html')) {
+    if (pathname.includes('newallocation.html')) {
+        showSlide('create-goal-slide');
+    } else if (pathname.includes('allocation.html')) {
         if (storedGoalId) {
             showSlide('allocation-section-slide');
         } else {
@@ -89,7 +97,11 @@ document.addEventListener('DOMContentLoaded', function() {
     ) {
         showSlide('welcome-slide');
     } else {
-        console.warn('Unrecognized pathname, defaulting to welcome-slide');
-        showSlide('welcome-slide');
+        const firstSlide = document.querySelector('.slide');
+        if (firstSlide) {
+            showSlide(firstSlide.id);
+        } else {
+            showSlide('welcome-slide');
+        }
     }
 });

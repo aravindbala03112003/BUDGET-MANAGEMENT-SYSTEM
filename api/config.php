@@ -62,7 +62,8 @@ function get_db_connection(): PDO {
                 $pdo = new PDO($dsn, $user, $pass, [
                     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                    PDO::ATTR_EMULATE_PREPARES => false
+                    PDO::ATTR_EMULATE_PREPARES => false,
+                    PDO::ATTR_TIMEOUT => 15
                 ]);
                 return $pdo;
             } catch (PDOException $e) {
@@ -74,14 +75,26 @@ function get_db_connection(): PDO {
                             return new PDO($retryDsn, $user, $pass, [
                                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                                PDO::ATTR_EMULATE_PREPARES => false
+                                PDO::ATTR_EMULATE_PREPARES => false,
+                                PDO::ATTR_TIMEOUT => 15
                             ]);
                         } catch (PDOException $retryEx) {
                             error_log("Database connection failed via URL retry: " . $retryEx->getMessage());
                         }
                     }
                 }
-                error_log("Database connection failed via URL: " . $e->getMessage());
+                // Quick retry in case server was waking from idle
+                usleep(400000);
+                try {
+                    return new PDO($dsn, $user, $pass, [
+                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                        PDO::ATTR_EMULATE_PREPARES => false,
+                        PDO::ATTR_TIMEOUT => 15
+                    ]);
+                } catch (PDOException $coldEx) {
+                    error_log("Database connection failed via URL: " . $coldEx->getMessage());
+                }
                 // Fall through to try individual parameters if available
             }
         }
@@ -107,7 +120,8 @@ function get_db_connection(): PDO {
         $pdo = new PDO($dsn, $user, $pass, [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES => false
+            PDO::ATTR_EMULATE_PREPARES => false,
+            PDO::ATTR_TIMEOUT => 15
         ]);
         return $pdo;
     } catch (PDOException $e) {
@@ -119,15 +133,27 @@ function get_db_connection(): PDO {
                     return new PDO($retryDsn, $user, $pass, [
                         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                        PDO::ATTR_EMULATE_PREPARES => false
+                        PDO::ATTR_EMULATE_PREPARES => false,
+                        PDO::ATTR_TIMEOUT => 15
                     ]);
                 } catch (PDOException $retryEx) {
                     error_log("Database connection failed via params retry: " . $retryEx->getMessage());
                 }
             }
         }
-        error_log("Database connection failed via individual params: " . $e->getMessage());
-        throw $e;
+        // Quick retry
+        usleep(400000);
+        try {
+            return new PDO($dsn, $user, $pass, [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES => false,
+                PDO::ATTR_TIMEOUT => 15
+            ]);
+        } catch (PDOException $retryCold) {
+            error_log("Database connection failed via individual params: " . $retryCold->getMessage());
+            throw $retryCold;
+        }
     }
 }
 

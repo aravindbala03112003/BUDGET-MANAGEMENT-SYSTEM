@@ -1,4 +1,10 @@
 document.addEventListener('DOMContentLoaded', function() {
+  const goalYearSelect = document.getElementById('goal-year');
+  if (!goalYearSelect) {
+      // Not on allocation.html (e.g. newallocation.html which only has create-goal-slide)
+      return;
+  }
+
   console.log('DOM loaded, initializing Select2');
   try {
       $('#goal-year').select2({
@@ -9,7 +15,6 @@ document.addEventListener('DOMContentLoaded', function() {
       console.log('Select2 initialized');
   } catch (error) {
       console.error('Select2 initialization failed:', error);
-      alert('Failed to initialize searchable dropdown.');
   }
 
   // Load goals
@@ -23,6 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
       .then(data => {
           console.log('Goals data:', data);
           const select = document.getElementById('goal-year');
+          if (!select) return;
           select.innerHTML = '<option value="">--Select Year--</option>';
           data.forEach(goal => {
               const option = document.createElement('option');
@@ -43,7 +49,9 @@ document.addEventListener('DOMContentLoaded', function() {
       })
       .catch(error => {
           console.error('Error loading goals:', error);
-          alert('Failed to load goals. Please check the server connection.');
+          if (document.getElementById('goal-year')) {
+              alert('Failed to load goals. Please check the server connection.');
+          }
       });
 
   // Handle goal year selection
@@ -56,7 +64,9 @@ document.addEventListener('DOMContentLoaded', function() {
           loadAllocation(goalId);
       } else {
           localStorage.removeItem('selectedGoalId');
-          showSlide('goal-selection-slide');
+          if (typeof showSlide === 'function') {
+              showSlide('goal-selection-slide');
+          }
       }
   });
 });

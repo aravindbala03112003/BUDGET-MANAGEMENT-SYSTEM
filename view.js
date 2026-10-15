@@ -1,4 +1,9 @@
 document.addEventListener('DOMContentLoaded', function() {
+  const viewSlide = document.getElementById('view-slide');
+  if (!viewSlide) {
+      return; // Only run on view page
+  }
+
   // Initialize Select2
   $('#goal-year, #department-filter').select2({
       placeholder: '--Select--',
@@ -11,6 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
       .then(response => response.json())
       .then(data => {
           const select = document.getElementById('goal-year');
+          if (!select) return;
           data.forEach(goal => {
               const option = document.createElement('option');
               option.value = goal.id;
@@ -27,6 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
       .then(response => response.json())
       .then(data => {
           const select = document.getElementById('department-filter');
+          if (!select) return;
           data.forEach(dept => {
               const option = document.createElement('option');
               option.value = dept.id;
@@ -40,19 +47,25 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function loadBudgetDetails() {
-  const goalId = document.getElementById('goal-year').value;
+  const goalElem = document.getElementById('goal-year');
+  if (!goalElem) return;
+  const goalId = goalElem.value;
+  const viewSlide = document.getElementById('view-slide');
+  const reportTable = document.getElementById('report-table');
   if (goalId) {
       loadReports();
-      document.getElementById('view-slide').classList.add('slide-active');
+      if (viewSlide) viewSlide.classList.add('slide-active');
   } else {
-      document.getElementById('report-table').innerHTML = '';
-      document.getElementById('view-slide').classList.add('slide-active');
+      if (reportTable) reportTable.innerHTML = '';
+      if (viewSlide) viewSlide.classList.add('slide-active');
   }
 }
 
 function loadReports() {
-  const deptId = document.getElementById('department-filter').value;
-  const goalId = document.getElementById('goal-year').value;
+  const deptElem = document.getElementById('department-filter');
+  const goalElem = document.getElementById('goal-year');
+  const deptId = deptElem ? deptElem.value : '';
+  const goalId = goalElem ? goalElem.value : '';
   let url = `get_data.php${deptId ? `?department_id=${deptId}` : ''}`;
   if (goalId) {
       url += `${deptId ? '&' : '?'}goal_id=${goalId}`;
@@ -60,8 +73,10 @@ function loadReports() {
   fetch(url)
       .then(response => response.text())
       .then(data => {
-          document.getElementById('report-table').innerHTML = data;
-          document.getElementById('view-slide').classList.add('slide-active');
+          const reportTable = document.getElementById('report-table');
+          const viewSlide = document.getElementById('view-slide');
+          if (reportTable) reportTable.innerHTML = data;
+          if (viewSlide) viewSlide.classList.add('slide-active');
       })
       .catch(error => console.error('Error loading reports:', error));
 }

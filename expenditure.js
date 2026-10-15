@@ -1,4 +1,9 @@
 document.addEventListener('DOMContentLoaded', function () {
+    const deptSelect = document.getElementById('department');
+    if (!deptSelect) {
+        return; // Only run on expenditure page
+    }
+
     $('#department, #main-head, #sub-head').select2({
         placeholder: '--Select--',
         allowClear: true,
@@ -10,6 +15,7 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(response => response.json())
         .then(data => {
             const select = document.getElementById('department');
+            if (!select) return;
             select.innerHTML = '<option value="">--Select Department--</option>';
             data.forEach(dept => {
                 const option = document.createElement('option');
@@ -26,6 +32,7 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(response => response.json())
         .then(data => {
             const goalSelect = document.getElementById('goal-year');
+            if (!goalSelect) return;
             goalSelect.innerHTML = '<option value="">--Select Year--</option>';
             data.forEach(goal => {
                 const option = document.createElement('option');
@@ -42,7 +49,9 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .catch(error => {
             console.error('Error loading goals:', error);
-            alert('Failed to load goals.');
+            if (document.getElementById('goal-year')) {
+                alert('Failed to load goals.');
+            }
         });
 
     // On goal year change, load main heads

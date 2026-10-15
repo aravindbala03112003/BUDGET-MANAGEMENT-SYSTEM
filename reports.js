@@ -1,4 +1,9 @@
 document.addEventListener('DOMContentLoaded', function() {
+  const reportsSlide = document.getElementById('reports-slide');
+  if (!reportsSlide) {
+      return; // Only run on reports page
+  }
+
   // Initialize Select2
   $('#department-filter, #export-type').select2({
       placeholder: '--Select--',
@@ -11,6 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
       .then(response => response.json())
       .then(data => {
           const select = document.getElementById('department-filter');
+          if (!select) return;
           data.forEach(dept => {
               const option = document.createElement('option');
               option.value = dept.id;
@@ -24,12 +30,15 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function loadReports() {
-  const deptId = document.getElementById('department-filter').value;
+  const deptElem = document.getElementById('department-filter');
+  const deptId = deptElem ? deptElem.value : '';
   fetch(`get_data.php${deptId ? `?department_id=${deptId}` : ''}`)
       .then(response => response.text())
       .then(data => {
-          document.getElementById('report-table').innerHTML = data;
-          document.getElementById('reports-slide').classList.add('slide-active');
+          const reportTable = document.getElementById('report-table');
+          const reportsSlide = document.getElementById('reports-slide');
+          if (reportTable) reportTable.innerHTML = data;
+          if (reportsSlide) reportsSlide.classList.add('slide-active');
       })
       .catch(error => console.error('Error loading reports:', error));
 }
