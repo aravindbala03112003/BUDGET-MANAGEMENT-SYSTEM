@@ -9,3 +9,6 @@ database/
 scratch/
 *.sql
 *.md
+
+# Exclude root PHP files from static deployment so rewrites route directly to serverless api/
+/*.php
