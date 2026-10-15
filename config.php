@@ -52,6 +52,13 @@ function get_db_connection(): PDO {
             }
 
             $dsn = "pgsql:host={$host};port={$port};dbname={$dbname};sslmode={$sslmode}";
+
+            // Auto-detect Neon endpoint ID for SNI compatibility
+            if (preg_match('/^(ep-[a-z0-9-]+?)(?:-pooler)?\./i', $host, $matches)) {
+                $endpointId = $matches[1];
+                $dsn .= ";options='endpoint={$endpointId}'";
+            }
+
             try {
                 $pdo = new PDO($dsn, $user, $pass, [
                     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
@@ -75,6 +82,11 @@ function get_db_connection(): PDO {
     $sslmode = getenv('DB_SSLMODE') ?: 'prefer';
 
     $dsn = "pgsql:host={$host};port={$port};dbname={$dbname};sslmode={$sslmode}";
+
+    if (preg_match('/^(ep-[a-z0-9-]+?)(?:-pooler)?\./i', $host, $matches)) {
+        $endpointId = $matches[1];
+        $dsn .= ";options='endpoint={$endpointId}'";
+    }
 
     try {
         $pdo = new PDO($dsn, $user, $pass, [
