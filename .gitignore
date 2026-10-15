@@ -24,3 +24,5 @@ desktop.ini
 # Scratch / Local Backups
 scratch/
 *.sql.bak
+
+.vercel

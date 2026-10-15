@@ -34,9 +34,14 @@ function get_db_connection(): PDO {
     $db_url = getenv('DATABASE_URL') ?: getenv('POSTGRES_URL') ?: getenv('POSTGRES_URL_NON_POOLING');
 
     if ($db_url) {
+        $db_url = trim($db_url);
+        // Clean out any UTF-8 BOM, zero-width characters, or non-printable ASCII
+        $db_url = preg_replace('/[^\x20-\x7E]/', '', $db_url);
+        $db_url = trim($db_url, " \t\n\r\0\x0B\"'");
+
         $parsed = parse_url($db_url);
-        if ($parsed) {
-            $host = $parsed['host'] ?? 'localhost';
+        if ($parsed && !empty($parsed['host'])) {
+            $host = $parsed['host'];
             $port = $parsed['port'] ?? 5432;
             $user = $parsed['user'] ?? '';
             $pass = $parsed['pass'] ?? '';
@@ -68,18 +73,24 @@ function get_db_connection(): PDO {
                 return $pdo;
             } catch (PDOException $e) {
                 error_log("Database connection failed via URL: " . $e->getMessage());
-                throw $e;
+                // Fall through to try individual parameters if available
             }
         }
     }
 
     // 2. Check for individual environment variables or fallback to defaults
-    $host = getenv('DB_HOST') ?: getenv('POSTGRES_HOST') ?: '127.0.0.1';
+    $host = getenv('DB_HOST') ?: getenv('POSTGRES_HOST');
+    if ($host) {
+        $host = trim(preg_replace('/[^\x20-\x7E]/', '', $host));
+    }
+    if (!$host) {
+        $host = '127.0.0.1';
+    }
     $port = getenv('DB_PORT') ?: getenv('POSTGRES_PORT') ?: '5432';
     $dbname = getenv('DB_NAME') ?: getenv('POSTGRES_DATABASE') ?: 'budget_management1';
     $user = getenv('DB_USER') ?: getenv('POSTGRES_USER') ?: 'postgres';
     $pass = getenv('DB_PASS') ?: getenv('POSTGRES_PASSWORD') ?: '';
-    $sslmode = getenv('DB_SSLMODE') ?: 'prefer';
+    $sslmode = getenv('DB_SSLMODE') ?: ($host && strpos($host, 'neon.tech') !== false ? 'require' : 'prefer');
 
     $dsn = "pgsql:host={$host};port={$port};dbname={$dbname};sslmode={$sslmode}";
 
