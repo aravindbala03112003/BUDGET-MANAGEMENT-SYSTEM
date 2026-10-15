@@ -99,7 +99,7 @@ try {
     if ($pdo->inTransaction()) {
         $pdo->rollBack();
     }
-    error_log("add_expenditure error: " . $e->getMessage());
-    echo "Error: Database transaction failed.";
+    error_log("add_expenditure error: " . $e->getMessage() . " at " . $e->getFile() . ":" . $e->getLine());
+    echo "Error: " . $e->getMessage();
 }
 ?>
