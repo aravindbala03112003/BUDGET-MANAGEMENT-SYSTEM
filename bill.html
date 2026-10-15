@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bill - Puducherry Technological University</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }
+    .wrapper { min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; box-sizing:border-box; }
+    .bill-container { background:#fff; border:2px solid #000; padding:30px; width:400px; box-sizing:border-box; display:flex; flex-direction:column; justify-content:space-between; }
+    .bill-header { text-align:center; border-bottom:1px solid #000; padding-bottom:10px; margin-bottom:20px; }
+    .bill-header h2 { color:#002f6c; margin:0; font-size:20px; }
+    .bill-details h3, .bill-details p { margin:0; }
+    .bill-details h3 { margin-bottom:10px; }
+    .bill-details p { margin:6px 0; }
+    .bill-footer { text-align:right; font-style:italic; margin-top:10px; font-size:14px; }
+    .print-btn { background:#1f2a44; color:#fff; padding:10px 20px; border:none; border-radius:6px; cursor:pointer; margin:20px auto 0; display:block; font-size:14px; }
+    .print-btn:hover { background:#151c2e; }
+    /* Hidden print-table markup on screen */
+    .print-table { display:none; }
+
+    @media print {
+      body { background:#fff; margin:0; padding:0; }
+      @page { size:A4 portrait; margin:0; }
+      .print-btn, .bill-details { display:none; }
+      .wrapper { align-items:flex-start; padding:0; }
+      .bill-container { border:none; box-shadow:none; width:100%; max-width:100%; padding:40px 60px; margin:0; }
+      /* Show print-table */
+      .print-table { display:table; width:100%; border-collapse:collapse; margin-bottom:20px; }
+      .print-table th, .print-table td { border:1px solid #000; padding:8px; font-size:14px; text-align:left; }
+      .print-table th { background:#e0e0e0; }
+      .bill-footer { position:absolute; bottom:60px; right:60px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="bill-container">
+      <div class="bill-header">
+        <h2>Puducherry Technological University</h2>
+        <p><strong>Bill No:</strong> <span id="bill-number"></span></p>
+        <p><strong>Date:</strong> <span id="bill-date"></span></p>
+      </div>
+      <!-- On-screen details -->
+      <div class="bill-details">
+        <h3>Bill Details</h3>
+        <p><strong>Department:</strong> <span id="bill-department"></span></p>
+        <p><strong>Type:</strong> <span id="bill-type"></span></p>
+        <p><strong>Sub Head:</strong> <span id="bill-subhead"></span></p>
+        <p><strong>Amount:</strong> ₹<span id="bill-amount"></span></p>
+        <p><strong>Description:</strong> <span id="bill-description"></span></p>
+        <p><strong>Cheque Number:</strong> <span id="bill-cheque"></span></p>
+      </div>
+      <!-- Print-only table -->
+      <table class="print-table">
+        <thead>
+          <tr><th colspan="2">Bill Details</th></tr>
+        </thead>
+        <tbody>
+          <tr><th>Department</th><td><span id="bill-department-print"></span></td></tr>
+          <tr><th>Type</th><td><span id="bill-type-print"></span></td></tr>
+          <tr><th>Sub Head</th><td><span id="bill-subhead-print"></span></td></tr>
+          <tr><th>Amount (₹)</th><td><span id="bill-amount-print"></span></td></tr>
+          <tr><th>Description</th><td><span id="bill-description-print"></span></td></tr>
+          <tr><th>Cheque Number</th><td><span id="bill-cheque-print"></span></td></tr>
+        </tbody>
+      </table>
+      <div class="bill-footer">Authorized Signatory</div>
+      <button class="print-btn" onclick="window.print()">Print Bill</button>
+    </div>
+  </div>
+  <script>
+    const p = new URLSearchParams(window.location.search);
+    // On-screen
+    document.getElementById('bill-number').textContent = p.get('billNumber') || 'N/A';
+    document.getElementById('bill-date').textContent = p.get('date') || 'N/A';
+    document.getElementById('bill-department').textContent = p.get('department') || 'N/A';
+    document.getElementById('bill-type').textContent = p.get('type') || 'N/A';
+    document.getElementById('bill-subhead').textContent = p.get('subhead') || 'N/A';
+    document.getElementById('bill-amount').textContent = p.get('amount') || 'N/A';
+    document.getElementById('bill-description').textContent = p.get('description') || 'N/A';
+    document.getElementById('bill-cheque').textContent = p.get('chequeNumber') || 'N/A';
+    // Print table
+    document.getElementById('bill-department-print').textContent = p.get('department') || 'N/A';
+    document.getElementById('bill-type-print').textContent = p.get('type') || 'N/A';
+    document.getElementById('bill-subhead-print').textContent = p.get('subhead') || 'N/A';
+    document.getElementById('bill-amount-print').textContent = p.get('amount') || 'N/A';
+    document.getElementById('bill-description-print').textContent = p.get('description') || 'N/A';
+    document.getElementById('bill-cheque-print').textContent = p.get('chequeNumber') || 'N/A';
+  </script>
+</body>
+</html>
